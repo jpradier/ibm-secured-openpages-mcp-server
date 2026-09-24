@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "openpages-mcp": {
+      "url": "http://localhost:8000/mcp",
+      "type": "streamable-http",
+      "headers": {
+        "Authorization": "Basic <token>"
+      },
+      "alwaysAllow": [
+        "list_resources",
+        "access",
+        "echo",
+        "get_resource",
+        "query_openpages",
+        "execute_openpages_query"
+      ],
+      "disabled": false,
+      "disabledTools": [
+        "openpages_delete_object",
+        "openpages_dissociate_objects",
+        "openpages_upsert_object"
+      ]
+    }
+  }
+}

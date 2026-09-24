@@ -1,0 +1,14 @@
+{
+  "_comment": "Field Group Support: You can now use '@GroupPrefix' to include all fields from a field group. For example, '@OPSS-Ctl' will include all fields with the OPSS-Ctl: prefix. Mix individual fields and groups as needed.",
+  "global_settings": {
+    "output_format": "json",
+    "output_format_description": "Global output format for upsert/delete/query_* tool responses. Options: 'text' (human-readable) or 'json' (structured, machine-readable for agents). Note: execute_openpages_query tool has its own 'format' parameter (table/json/list) for query-specific formatting.",
+    "namespace": "openpages",
+    "namespace_description": "Global namespace prefix for generic tools (e.g., delete_object becomes openpages_delete_object)",
+    "tool_exposure_mode": "ontology_based",
+    "tool_exposure_mode_description": "Controls which tools are exposed. Options: 'all' (both ontology_based and type_based), 'ontology_based' (only ontology based generic tools like upsert_object), 'type_based' (only type-specific tools like upsert_control)",
+    "include_all_object_types": true,
+    "include_all_object_types_description": "When true, dynamically fetches and includes ALL object types from OpenPages, ignoring the object_types array. When false (default), only uses object types configured in the object_types array."
+  },
+  "object_types": []
+}

@@ -6,9 +6,813 @@
     "namespace": "openpages",
     "namespace_description": "Global namespace prefix for generic tools (e.g., delete_object becomes openpages_delete_object)",
     "tool_exposure_mode": "ontology_based",
-    "tool_exposure_mode_description": "Controls which tools are exposed. Options: 'all' (both ontology_based and type_based), 'ontology_based' (only ontology based generic tools like upsert_object), 'type_based' (only type-specific tools like upsert_control)",
-    "include_all_object_types": true,
-    "include_all_object_types_description": "When true, dynamically fetches and includes ALL object types from OpenPages, ignoring the object_types array. When false (default), only uses object types configured in the object_types array."
+    "tool_exposure_mode_description": "Controls which tools are exposed. Options: 'all' (both ontology_based and type_based), 'ontology_based' (only ontology based generic tools like upsert_object), 'type_based' (only type-specific tools like upsert_control)"
   },
-  "object_types": []
+  "object_types": [
+    {
+      "type_id": "SOXControl",
+      "tool_prefix": "control",
+      "display_name": "Control",
+      "path_prefix": "Controls",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a SOX control in OpenPages. Automatically determines whether to insert a new control or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve SOX controls from OpenPages. Supports filtering by name, owner, and custom field filters. Returns control details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_control tool. Include all fields for comprehensive control data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "OPSS-Ctl:Status",
+          "OPSS-Ctl:Control Type",
+          "OPSS-Ctl:Frequency",
+          "OPSS-Ctl:Owner"
+        ],
+        "_comment": "USED BY: Type-based query_controls tool ONLY. Individual fields listed here. Could also use '@OPSS-Ctl' to include all OPSS-Ctl fields"
+      }
+    },
+    {
+      "type_id": "SOXIssue",
+      "tool_prefix": "issue",
+      "display_name": "Issue",
+      "path_prefix": "Issue",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an issue in OpenPages. Automatically determines whether to insert a new issue or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve issues from OpenPages. Supports filtering by name, owner, and custom field filters. Returns issue details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_issue tool. Include all fields for comprehensive issue data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "@OPSS-Iss"
+        ],
+        "_comment": "USED BY: Type-based query_issues tool ONLY. Using field group for filters as well"
+      }
+    },
+    {
+      "type_id": "SOXRisk",
+      "tool_prefix": "risk",
+      "display_name": "Risk",
+      "path_prefix": "Risk",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a risk in OpenPages. Automatically determines whether to insert a new risk or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve risks from OpenPages. Supports filtering by name, owner, and custom field filters. Returns risk details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_risk tool. Include all fields for comprehensive risk data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "OPSS-Rsk:Status",
+          "OPSS-Rsk:RiskLevel",
+          "OPSS-Rsk:Owner"
+        ],
+        "_comment": "USED BY: Type-based query_risks tool ONLY. Individual fields for query filters"
+      }
+    },
+    {
+      "type_id": "Register",
+      "tool_prefix": "ai_usecase",
+      "display_name": "AI Use Case",
+      "path_prefix": "Registers",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an AI use case in OpenPages Register. Automatically determines whether to insert a new AI use case or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve AI use cases from OpenPages Register. Supports filtering by name, owner, and custom field filters. Returns AI use case details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_ai_usecase tool. Include all fields for comprehensive AI use case data"
+      },
+      "type_based_query_filters": {
+        "fields": [],
+        "_comment": "USED BY: Type-based query_ai_usecases tool ONLY. Add specific filter fields as needed (e.g., Status, Owner, AI Model Type, etc.)"
+      }
+    },
+    {
+      "type_id": "AuditProgram",
+      "tool_prefix": "audit",
+      "display_name": "Audit",
+      "path_prefix": "Audits",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an audit in OpenPages. Automatically determines whether to insert a new audit or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve audits from OpenPages. Supports filtering by name, owner, status, and custom field filters. Returns audit details including ID, name, description, status, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_audit tool. Include all fields for comprehensive audit data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_audits tool ONLY. Common audit filters including Status for 'Ready to Close' queries"
+      }
+    },
+    {
+      "type_id": "Mandate",
+      "tool_prefix": "mandate",
+      "display_name": "Framework",
+      "path_prefix": "Mandates",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a framework (mandate) in OpenPages. Automatically determines whether to insert a new framework or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve frameworks (mandates) from OpenPages. Supports filtering by name, owner, and custom field filters. Returns framework details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_mandate tool. Include all fields for comprehensive framework data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_mandates tool ONLY. Common framework filters"
+      }
+    },
+    {
+      "type_id": "Submandate",
+      "tool_prefix": "submandate",
+      "display_name": "Chapter",
+      "path_prefix": "Submandates",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a chapter (submandate) in OpenPages. Automatically determines whether to insert a new chapter or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve chapters (submandates) from OpenPages. Supports filtering by name, owner, and custom field filters. Returns chapter details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_submandate tool. Include all fields for comprehensive chapter data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_submandates tool ONLY. Common chapter filters"
+      }
+    },
+    {
+      "type_id": "Requirement",
+      "tool_prefix": "requirement",
+      "display_name": "Requirement",
+      "path_prefix": "Requirements",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a requirement in OpenPages. Automatically determines whether to insert a new requirement or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve requirements from OpenPages. Supports filtering by name, owner, and custom field filters. Returns requirement details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_requirement tool. Include all fields for comprehensive requirement data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_requirements tool ONLY. Common requirement filters"
+      }
+    },
+    {
+      "type_id": "RiskEntity",
+      "tool_prefix": "it_system",
+      "display_name": "IT System",
+      "path_prefix": "ITSystems",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an IT system (risk entity) in OpenPages. Automatically determines whether to insert a new IT system or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve IT systems (risk entities) from OpenPages. Supports filtering by name, owner, and custom field filters. Returns IT system details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_it_system tool. Include all fields for comprehensive IT system data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_it_systems tool ONLY. Common IT system filters"
+      }
+    },
+    {
+      "type_id": "Resource",
+      "tool_prefix": "asset",
+      "display_name": "Asset",
+      "path_prefix": "Resources",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an asset (resource) in OpenPages. Automatically determines whether to insert a new asset or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve assets (resources) from OpenPages. Supports filtering by name, owner, and custom field filters. Returns asset details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_asset tool. Include all fields for comprehensive asset data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_assets tool ONLY. Common asset filters"
+      }
+    },
+    {
+      "type_id": "Questionnaire",
+      "tool_prefix": "questionnaire",
+      "display_name": "Questionnaire",
+      "path_prefix": "Questionnaires",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a questionnaire in OpenPages. Automatically determines whether to insert a new questionnaire or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve questionnaires from OpenPages. Supports filtering by name, owner, and custom field filters. Returns questionnaire details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_questionnaire tool. Include all fields for comprehensive questionnaire data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_questionnaires tool ONLY. Common questionnaire filters"
+      }
+    },
+    {
+      "type_id": "QuestionnaireAssessment",
+      "tool_prefix": "questionnaire_assessment",
+      "display_name": "Questionnaire Assessment",
+      "path_prefix": "QuestionnaireAssessments",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a questionnaire assessment in OpenPages. Automatically determines whether to insert a new questionnaire assessment or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve questionnaire assessments from OpenPages. Supports filtering by name, owner, and custom field filters. Returns questionnaire assessment details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_questionnaire_assessment tool. Include all fields for comprehensive questionnaire assessment data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_questionnaire_assessments tool ONLY. Common questionnaire assessment filters"
+      }
+    },
+    {
+      "type_id": "QuestionnaireTemplate",
+      "tool_prefix": "questionnaire_template",
+      "display_name": "Questionnaire Template",
+      "path_prefix": "QuestionnaireTemplates",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a questionnaire template in OpenPages. Automatically determines whether to insert a new questionnaire template or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve questionnaire templates from OpenPages. Supports filtering by name, owner, and custom field filters. Returns questionnaire template details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_questionnaire_template tool. Include all fields for comprehensive questionnaire template data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_questionnaire_templates tool ONLY. Common questionnaire template filters"
+      }
+    },
+    {
+      "type_id": "SectionTemplate",
+      "tool_prefix": "section_template",
+      "display_name": "Section Template",
+      "path_prefix": "SectionTemplates",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a section template in OpenPages. Automatically determines whether to insert a new section template or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve section templates from OpenPages. Supports filtering by name, owner, and custom field filters. Returns section template details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_section_template tool. Include all fields for comprehensive section template data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_section_templates tool ONLY. Common section template filters"
+      }
+    },
+    {
+      "type_id": "QuestionTemplate",
+      "tool_prefix": "question_template",
+      "display_name": "Question Template",
+      "path_prefix": "QuestionTemplates",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a question template in OpenPages. Automatically determines whether to insert a new question template or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve question templates from OpenPages. Supports filtering by name, owner, and custom field filters. Returns question template details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_question_template tool. Include all fields for comprehensive question template data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_question_templates tool ONLY. Common question template filters"
+      }
+    },
+    {
+      "type_id": "AuditPhase",
+      "tool_prefix": "audit_phase",
+      "display_name": "Audit Section",
+      "path_prefix": "AuditPhases",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an audit section in OpenPages. Automatically determines whether to insert a new audit section or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve audit sections from OpenPages. Supports filtering by name, owner, status, and custom field filters. Returns audit section details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_audit_phase tool. Include all fields for comprehensive audit section data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_audit_phases tool ONLY. Common audit section filters"
+      }
+    },
+    {
+      "type_id": "Workpaper",
+      "tool_prefix": "workpaper",
+      "display_name": "Workpaper",
+      "path_prefix": "Workpapers",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a workpaper in OpenPages. Automatically determines whether to insert a new workpaper or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve workpapers from OpenPages. Supports filtering by name, owner, status, and custom field filters. Returns workpaper details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_workpaper tool. Include all fields for comprehensive workpaper data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_workpapers tool ONLY. Common workpaper filters"
+      }
+    },
+    {
+      "type_id": "Finding",
+      "tool_prefix": "finding",
+      "display_name": "Finding",
+      "path_prefix": "Findings",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a finding in OpenPages. Automatically determines whether to insert a new finding or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve findings from OpenPages. Supports filtering by name, owner, status, severity, and custom field filters. Returns finding details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_finding tool. Include all fields for comprehensive finding data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner",
+          "Severity"
+        ],
+        "_comment": "USED BY: Type-based query_findings tool ONLY. Common finding filters including severity"
+      }
+    },
+    {
+      "type_id": "ReviewComment",
+      "tool_prefix": "review_comment",
+      "display_name": "Review Comment",
+      "path_prefix": "ReviewComments",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a review comment in OpenPages. Automatically determines whether to insert a new review comment or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve review comments from OpenPages. Supports filtering by name, owner, and custom field filters. Returns review comment details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_review_comment tool. Include all fields for comprehensive review comment data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_review_comments tool ONLY. Common review comment filters"
+      }
+    },
+    {
+      "type_id": "AuditableEntity",
+      "tool_prefix": "auditable_entity",
+      "display_name": "Auditable Entity",
+      "path_prefix": "AuditableEntities",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an auditable entity in OpenPages. Automatically determines whether to insert a new auditable entity or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve auditable entities from OpenPages. Supports filtering by name, owner, and custom field filters. Returns auditable entity details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_auditable_entity tool. Include all fields for comprehensive auditable entity data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_auditable_entities tool ONLY. Common auditable entity filters"
+      }
+    },
+    {
+      "type_id": "SummaryAuditPlan",
+      "tool_prefix": "summary_audit_plan",
+      "display_name": "Summary Audit Plan",
+      "path_prefix": "SummaryAuditPlans",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a summary audit plan in OpenPages. Automatically determines whether to insert a new audit plan or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve summary audit plans from OpenPages. Supports filtering by name, owner, status, and custom field filters. Returns audit plan details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_audit_plan tool. Include all fields for comprehensive audit plan data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_audit_plans tool ONLY. Common audit plan filters"
+      }
+    },
+    {
+      "type_id": "RiskAssessment",
+      "tool_prefix": "risk_assessment",
+      "display_name": "Risk Assessment Campaign",
+      "path_prefix": "Risk Assessments",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a risk assessment campaign in OpenPages. Automatically determines whether to insert a new risk assessment or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve risk assessment campaigns from OpenPages. Supports filtering by name, owner, status, and custom field filters. Returns risk assessment details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_risk_assessment tool. Include all fields for comprehensive risk assessment data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "OPSS-RA:Status",
+          "RCM-RA:Owner"
+        ],
+        "_comment": "USED BY: Type-based query_risk_assessments tool ONLY. Common risk assessment filters"
+      }
+    },
+    {
+      "type_id": "Vulnerability",
+      "tool_prefix": "vulnerability",
+      "display_name": "Vulnerability",
+      "path_prefix": "Vulnerabilities",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a vulnerability in OpenPages. Automatically determines whether to insert a new vulnerability or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve vulnerabilities from OpenPages. Supports filtering by name, owner, status, and custom field filters. Returns vulnerability details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_vulnerability tool. Include all fields for comprehensive vulnerability data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Demo-Vulner:Status",
+          "Demo-Vulner:Owner"
+        ],
+        "_comment": "USED BY: Type-based query_vulnerabilities tool ONLY. Common vulnerability filters"
+      }
+    },
+    {
+      "type_id": "SOXBusEntity",
+      "tool_prefix": "business_entity",
+      "display_name": "Business Entity",
+      "path_prefix": "BusinessEntities",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a business entity in OpenPages. Automatically determines whether to insert a new business entity or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve business entities from OpenPages. Supports filtering by name, owner, and custom field filters. Returns business entity details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_business_entity tool. Include all fields for comprehensive business entity data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_business_entities tool ONLY. Common business entity filters"
+      }
+    },
+    {
+      "type_id": "SOXProcess",
+      "tool_prefix": "process",
+      "display_name": "Process",
+      "path_prefix": "Processes",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a process in OpenPages. Automatically determines whether to insert a new process or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve processes from OpenPages. Supports filtering by name, owner, and custom field filters. Returns process details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_process tool. Include all fields for comprehensive process data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_processes tool ONLY. Common process filters"
+      }
+    },
+    {
+      "type_id": "Policy",
+      "tool_prefix": "policy",
+      "display_name": "Policy",
+      "path_prefix": "Policies",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a policy in OpenPages. Automatically determines whether to insert a new policy or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve policies from OpenPages. Supports filtering by name, owner, and custom field filters. Returns policy details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_policy tool. Include all fields for comprehensive policy data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_policies tool ONLY. Common policy filters"
+      }
+    },
+    {
+      "type_id": "SOXTestPlan",
+      "tool_prefix": "test_plan",
+      "display_name": "Test Plan",
+      "path_prefix": "TestPlans",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a test plan in OpenPages. Automatically determines whether to insert a new test plan or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve test plans from OpenPages. Supports filtering by name, owner, and custom field filters. Returns test plan details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_test_plan tool. Include all fields for comprehensive test plan data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_test_plans tool ONLY. Common test plan filters"
+      }
+    },
+    {
+      "type_id": "SOXTest",
+      "tool_prefix": "test_result",
+      "display_name": "Test Result",
+      "path_prefix": "TestResults",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a test result in OpenPages. Automatically determines whether to insert a new test result or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve test results from OpenPages. Supports filtering by name, owner, and custom field filters. Returns test result details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_test_result tool. Include all fields for comprehensive test result data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_test_results tool ONLY. Common test result filters"
+      }
+    },
+    {
+      "type_id": "CompliancePlan",
+      "tool_prefix": "compliance_plan",
+      "display_name": "Compliance Plan",
+      "path_prefix": "CompliancePlans",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a compliance plan in OpenPages. Automatically determines whether to insert a new compliance plan or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve compliance plans from OpenPages. Supports filtering by name, owner, and custom field filters. Returns compliance plan details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_compliance_plan tool. Include all fields for comprehensive compliance plan data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_compliance_plans tool ONLY. Common compliance plan filters"
+      }
+    },
+    {
+      "type_id": "ComplianceTheme",
+      "tool_prefix": "compliance_theme",
+      "display_name": "Compliance Theme",
+      "path_prefix": "ComplianceThemes",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a compliance theme in OpenPages. Automatically determines whether to insert a new compliance theme or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve compliance themes from OpenPages. Supports filtering by name, owner, and custom field filters. Returns compliance theme details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_compliance_theme tool. Include all fields for comprehensive compliance theme data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_compliance_themes tool ONLY. Common compliance theme filters"
+      }
+    },
+    {
+      "type_id": "MandateEvaluation",
+      "tool_prefix": "requirements_evaluation",
+      "display_name": "Requirements Evaluation",
+      "path_prefix": "RequirementsEvaluations",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a requirements evaluation in OpenPages. Automatically determines whether to insert a new requirements evaluation or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve requirements evaluations from OpenPages. Supports filtering by name, owner, and custom field filters. Returns requirements evaluation details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_requirements_evaluation tool. Include all fields for comprehensive requirements evaluation data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_requirements_evaluations tool ONLY. Common requirements evaluation filters"
+      }
+    },
+    {
+      "type_id": "Plan",
+      "tool_prefix": "plan",
+      "display_name": "Plan",
+      "path_prefix": "Plans",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a plan in OpenPages. Automatically determines whether to insert a new plan or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve plans from OpenPages. Supports filtering by name, owner, and custom field filters. Returns plan details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_plan tool. Include all fields for comprehensive plan data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_plans tool ONLY. Common plan filters"
+      }
+    },
+    {
+      "type_id": "Auditor",
+      "tool_prefix": "auditor",
+      "display_name": "Auditor",
+      "path_prefix": "Auditors",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update an auditor in OpenPages. Automatically determines whether to insert a new auditor or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve auditors from OpenPages. Supports filtering by name, owner, and custom field filters. Returns auditor details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_auditor tool. Include all fields for comprehensive auditor data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_auditors tool ONLY. Common auditor filters"
+      }
+    },
+    {
+      "type_id": "Campaign",
+      "tool_prefix": "campaign",
+      "display_name": "Campaign",
+      "path_prefix": "Campaigns",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a campaign in OpenPages. Automatically determines whether to insert a new campaign or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve campaigns from OpenPages. Supports filtering by name, owner, and custom field filters. Returns campaign details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_campaign tool. Include all fields for comprehensive campaign data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_campaigns tool ONLY. Common campaign filters"
+      }
+    },
+    {
+      "type_id": "LossEvent",
+      "tool_prefix": "loss_event",
+      "display_name": "Fiche Incident",
+      "path_prefix": "LossEvents",
+      "namespace": "openpages",
+      "tool_descriptions": {
+        "upsert": "Create or update a loss event in OpenPages. Automatically determines whether to insert a new loss event or update an existing one based on provided identifiers (id, path, or name).",
+        "query": "Search and retrieve loss events from OpenPages. Supports filtering by name, owner, and custom field filters. Returns loss event details including ID, name, description, and selected fields."
+      },
+      "resource_fields": {
+        "include_all_fields": true,
+        "fields": [],
+        "_comment": "USED BY: Published resources (all modes) + Type-based upsert_loss_event tool. Include all fields for comprehensive loss event data"
+      },
+      "type_based_query_filters": {
+        "fields": [
+          "Status",
+          "Owner"
+        ],
+        "_comment": "USED BY: Type-based query_loss_events tool ONLY. Common loss event filters"
+      }
+    }
+  ]
 }
