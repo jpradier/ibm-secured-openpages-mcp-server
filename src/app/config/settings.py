@@ -81,6 +81,7 @@ class Settings(BaseSettings):
     _base_url: str = ""
     # Ensure the base URL has the correct protocol
     OPENPAGES_BASE_URL: str = ""
+    OPENPAGES_API_PATH_PREFIX: str = "/opgrc"  # REST API path prefix; set to "" if your instance serves the API directly at /api/v2/...
     OPENPAGES_AUTHENTICATION_TYPE: str = "basic"
     OPENPAGES_USERNAME: str = ""
     OPENPAGES_PASSWORD: str = ""

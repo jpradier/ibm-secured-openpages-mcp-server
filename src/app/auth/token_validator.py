@@ -45,12 +45,18 @@ class PassthroughTokenValidator:
         Strips "Bearer " prefix if present, decodes the JWT payload,
         and checks the `exp` claim against current time.
 
+        Basic auth credentials ("Basic <base64>") are not JWTs and are passed
+        through as-is without validation — the downstream OpenPages REST API
+        enforces them directly.
+
         Args:
             raw_token: The raw token string, optionally prefixed with "Bearer ".
 
         Raises:
             TokenValidationError: If the token is malformed, missing exp, or expired.
         """
+        if raw_token.lower().startswith("basic "):
+            return
         token = self._strip_bearer_prefix(raw_token)
 
         # Cache hit — same token string, just re-check expiry
