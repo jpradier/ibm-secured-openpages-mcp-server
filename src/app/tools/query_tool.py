@@ -268,10 +268,11 @@ class QueryTool(BaseTool):
         Returns:
             Full URL to view the object in OpenPages UI
         """
-        # Get base URL from client (remove /opgrc/api/v2 suffix if present)
+        # Get base URL from client (remove /<api_root>/api/v2 suffix if present)
         base_url = self.client.base_url
-        if '/opgrc/api' in base_url:
-            base_url = base_url.split('/opgrc/api')[0]
+        api_root = self.client.settings.OPENPAGES_API_ROOT
+        if api_root and f'{api_root}/api' in base_url:
+            base_url = base_url.split(f'{api_root}/api')[0]
         
         return f"{base_url}/app/jspview/react/grc/task-view/{resource_id}"
     

@@ -64,10 +64,9 @@ In this step, you will deploy this MCP server on IBM Cloud Code Engine directly 
 Under the **Environment variables** section of the Code Engine application configuration, define the required variables based on your `.env` configuration:
 
 - **`OPENPAGES_BASE_URL`**: The base URL of your target OpenPages instance (e.g., `https://<instance-domain>`).
-- **`OPENPAGES_API_PATH_PREFIX`**: The REST API path prefix (defaults to `/opgrc`; set to empty string `""` if your OpenPages instance serves the REST API directly at `/api/v2/...`).
+- **`OPENPAGES_API_ROOT`**: The REST API root path prepended to all `/api/v2/...` calls. Common values: `/opgrc` (standard SaaS/on-prem, the default) or `/openpages/`. Trailing slashes are stripped automatically. Use `none` or `off` if your instance serves the API directly at `/api/v2/...` (Code Engine cannot store empty strings).
 - **`OPENPAGES_AUTHENTICATION_TYPE`**: Authentication scheme used to connect to OpenPages (`basic`, `bearer`, `ibm_cloud`, `mcsp`, or `cp4d`).
 - **`OPENPAGES_USERNAME` / `OPENPAGES_PASSWORD`**: Default instance credentials when using `basic` authentication.
-- **`OPENPAGES_AUTH_TOKEN`**: Default token when using `bearer` authentication.
 - **`MCP_API_TOKEN`**: **(Critical Security Setting)** The token required to authenticate incoming requests to this MCP server.
   > 🔒 **Focus on `MCP_API_TOKEN`**: When using basic authorization against the MCP server, this variable must contain the **Base64-encoded** string of `username:password` (for example, base64 of `admin:secretpassphrase`). Any client connecting to the MCP endpoints must provide this token (e.g., in the `Authorization: Bearer <MCP_API_TOKEN>` header or `Authorization: Basic <base64>` header) to gain access.
   >
@@ -75,8 +74,6 @@ Under the **Environment variables** section of the Code Engine application confi
   > ```bash
   > echo -n "username:password" | base64
   > ```
-- **`TOOL_EXPOSURE_MODE`**: Tool mode (`ontology` for dynamic GRC query/schema tools, or `type_based` for explicit object tools).
-- **`ENABLE_PASSTHROUGH_AUTH`**: Set to `true` to allow per-request user authentication tokens to pass through to the downstream OpenPages API.
 
 ### 1.3 Debugging and Modifying Configuration
 

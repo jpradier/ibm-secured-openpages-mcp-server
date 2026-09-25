@@ -223,9 +223,10 @@ class OpenPagesClient:
         """
         Get the correct API path based on deployment type (CP4D vs standard).
 
-        The prefix is controlled by OPENPAGES_API_PREFIX (default "/opgrc"):
-          - Standard SaaS/on-prem:  "/opgrc"  → /opgrc/api/v2/...
-          - TechZone / bare on-prem: ""        → /api/v2/...
+        The root is controlled by OPENPAGES_API_ROOT (default "/opgrc"):
+          - Standard SaaS/on-prem:  "/opgrc"    → /opgrc/api/v2/...
+          - Custom root:             "/openpages" → /openpages/api/v2/...
+          - TechZone / bare on-prem: ""          → /api/v2/...
           - CP4D: always appends "-opgrc" to the base URL path (unchanged).
 
         Args:
@@ -238,7 +239,7 @@ class OpenPagesClient:
             # CP4D: append -opgrc suffix to base URL, then add the endpoint
             return f"-opgrc{endpoint}"
         else:
-            prefix = self.settings.OPENPAGES_API_PREFIX
+            prefix = self.settings.OPENPAGES_API_ROOT
             return f"{prefix}{endpoint}"
     
     def _create_basic_auth_header(self, username: Optional[str], password: Optional[str]) -> str:

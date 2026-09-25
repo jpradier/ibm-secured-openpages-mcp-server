@@ -19,7 +19,7 @@ import os
 import json
 import pathlib
 from pathlib import Path
-from pydantic import SecretStr, model_validator
+from pydantic import SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional, Dict, Any, List
 import logging
@@ -88,10 +88,36 @@ class Settings(BaseSettings):
     OPENPAGES_APIKEY_FILE: Optional[str] = None  # Path to file containing API key
     OPENPAGES_AUTHENTICATION_URL: str = ""
     OPENPAGES_INSTANCE_NAME: str = ""  # For CP4D deployments
-    # API path prefix prepended to all /api/v2/... calls.
+    # Root path prepended to all /api/v2/... calls.
     # Standard OpenPages (SaaS/on-prem): "/opgrc"  → /opgrc/api/v2/...
     # Some on-prem instances (e.g. TechZone) expose /api/v2/ directly: set to ""
-    OPENPAGES_API_PREFIX: str = "/opgrc"
+    # On Code Engine, use "none" or "off" to represent an empty root.
+    # Trailing slashes are stripped automatically (e.g. "/openpages/" → "/openpages").
+    OPENPAGES_API_ROOT: str = "/opgrc"
+
+    @field_validator("OPENPAGES_API_ROOT", mode="before")
+    @classmethod
+    def _normalise_api_root(cls, v: str) -> str:
+        if isinstance(v, str) and v.strip().lower() in ("none", "off", "empty"):
+            return ""
+        return v.rstrip("/") if isinstance(v, str) else v
+
+    @model_validator(mode="after")
+    def _deduplicate_api_root(self) -> "Settings":
+        """
+        If OPENPAGES_BASE_URL already ends with the OPENPAGES_API_ROOT path segment,
+        clear OPENPAGES_API_ROOT to avoid double-prefixing (e.g. /openpages/openpages/...).
+        Example: base_url=".../openpages" + api_root="/openpages" → api_root=""
+        """
+        root = self.OPENPAGES_API_ROOT
+        if root and self.OPENPAGES_BASE_URL.rstrip("/").endswith(root):
+            logger.warning(
+                "OPENPAGES_API_ROOT '%s' is already the trailing path of "
+                "OPENPAGES_BASE_URL — clearing it to avoid double-prefix.",
+                root,
+            )
+            self.OPENPAGES_API_ROOT = ""
+        return self
 
     # Cloud provider the server is provisioned on.
     # When set to "aws" the user-presented API key (auth type 4) must be exchanged

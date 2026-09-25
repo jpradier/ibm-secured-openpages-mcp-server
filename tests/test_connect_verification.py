@@ -88,7 +88,7 @@ class TestVerifyAccessClient:
         args, kwargs = client._request_with_auth_retry.call_args
         assert args[0] == "GET"
         url = args[1]
-        assert "opgrc" in url  # _get_api_path deployment prefix
+        assert client.settings.OPENPAGES_API_ROOT in url  # _get_api_path deployment prefix
         assert "/api/v2/types" in url
         assert "include_field_definitions=false" in url
         assert "include_localized_labels=false" in url

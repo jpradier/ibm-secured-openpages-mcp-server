@@ -234,6 +234,7 @@ Key configuration options in `.env`:
 | `OPENPAGES_USERNAME` | Username (for basic auth) | - | If basic |
 | `OPENPAGES_PASSWORD` | Password (for basic auth) | - | If basic |
 | `OPENPAGES_AUTH_TOKEN` | Bearer token | - | If bearer |
+| `OPENPAGES_API_ROOT` | Root path prepended to all `/api/v2/…` calls. Use `none` or `off` to omit (e.g. on Code Engine where empty strings cannot be stored). Trailing slashes stripped automatically. | `/opgrc` | No |
 | `MCP_SERVER_MODE` | Server mode: `http` or `stdio` | `http` | No |
 | `PORT` | HTTP server port | `8080` | No |
 | `MCP_API_TOKEN` | Required bearer token to access MCP endpoints | - | No |

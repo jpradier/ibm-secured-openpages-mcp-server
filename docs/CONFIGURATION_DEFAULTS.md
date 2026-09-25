@@ -58,6 +58,11 @@ RATE_LIMIT_ENABLED: bool = False
 RATE_LIMIT_REQUESTS_PER_MINUTE: int = 60
 RATE_LIMIT_BURST_SIZE: int = 10
 
+# API root path (prepended to all /api/v2/... calls)
+# Use "none" or "off" on platforms (e.g. Code Engine) that cannot store empty strings.
+# Trailing slashes are stripped automatically.
+OPENPAGES_API_ROOT: str = "/opgrc"
+
 # Object types configuration
 OPENPAGES_OBJECT_TYPES: List[Dict[str, Any]] = []
 OUTPUT_FORMAT: str = "json"
