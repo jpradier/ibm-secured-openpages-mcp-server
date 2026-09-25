@@ -88,6 +88,10 @@ class Settings(BaseSettings):
     OPENPAGES_APIKEY_FILE: Optional[str] = None  # Path to file containing API key
     OPENPAGES_AUTHENTICATION_URL: str = ""
     OPENPAGES_INSTANCE_NAME: str = ""  # For CP4D deployments
+    # API path prefix prepended to all /api/v2/... calls.
+    # Standard OpenPages (SaaS/on-prem): "/opgrc"  → /opgrc/api/v2/...
+    # Some on-prem instances (e.g. TechZone) expose /api/v2/ directly: set to ""
+    OPENPAGES_API_PREFIX: str = "/opgrc"
 
     # Cloud provider the server is provisioned on.
     # When set to "aws" the user-presented API key (auth type 4) must be exchanged
@@ -218,9 +222,9 @@ class Settings(BaseSettings):
     ENABLE_MINIMAL_SCHEMA_MODE: bool = True  # Enable minimal schema mode by default
     CACHE_QUERY_EXAMPLES: bool = True  # Cache query examples by default
 
-    # Static bearer token for protecting the MCP server endpoint.
+    # Static token for protecting the MCP server endpoint (Basic auth scheme).
     # When set, ALL incoming requests (including server-credential deployments) must
-    # present "Authorization: Bearer <token>" — independently of OpenPages auth.
+    # present "Authorization: Basic <token>" — independently of OpenPages auth.
     # Leave empty to disable this gate (default: no token required).
     MCP_API_TOKEN: str = ""
 

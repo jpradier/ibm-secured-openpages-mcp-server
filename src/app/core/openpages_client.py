@@ -222,20 +222,24 @@ class OpenPagesClient:
     def _get_api_path(self, endpoint: str) -> str:
         """
         Get the correct API path based on deployment type (CP4D vs standard).
-        
+
+        The prefix is controlled by OPENPAGES_API_PREFIX (default "/opgrc"):
+          - Standard SaaS/on-prem:  "/opgrc"  → /opgrc/api/v2/...
+          - TechZone / bare on-prem: ""        → /api/v2/...
+          - CP4D: always appends "-opgrc" to the base URL path (unchanged).
+
         Args:
             endpoint: The API endpoint (e.g., '/api/v2/query')
-            
+
         Returns:
             Full API path with correct prefix
         """
         if self.is_cp4d:
-            # CP4D: Just append -opgrc to base URL, then add the endpoint
-            # Base URL already contains the instance path (e.g., /openpages-xxx)
+            # CP4D: append -opgrc suffix to base URL, then add the endpoint
             return f"-opgrc{endpoint}"
         else:
-            # Standard OpenPages uses: /opgrc/api/v2/...
-            return f"/opgrc{endpoint}"
+            prefix = self.settings.OPENPAGES_API_PREFIX
+            return f"{prefix}{endpoint}"
     
     def _create_basic_auth_header(self, username: Optional[str], password: Optional[str]) -> str:
         """

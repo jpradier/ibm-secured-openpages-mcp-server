@@ -270,7 +270,7 @@ curl http://localhost:8000/health
 ```bash
 curl -X POST http://localhost:8000/mcp \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Basic <token>" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":"1"}'
 # Expected: JSON response with list of available tools
 ```
@@ -279,7 +279,7 @@ curl -X POST http://localhost:8000/mcp \
 ```bash
 curl -X POST http://localhost:8000/mcp \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Basic <token>" \
   -d '{
     "jsonrpc":"2.0",
     "method":"tools/call",
@@ -366,7 +366,7 @@ See [`.env.example`](.env.example) for all available configuration options.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `MCP_API_TOKEN` | _(empty)_ | Static bearer token protecting the `/mcp` endpoint. When set, all requests must include `Authorization: Bearer <token>`. Generate with `python -c "import secrets; print(secrets.token_urlsafe(32))"`. |
+| `MCP_API_TOKEN` | _(empty)_ | Static token protecting the `/mcp` endpoint (Basic auth). When set, all requests must include `Authorization: Basic <token>`. Generate with `python -c "import secrets; print(secrets.token_urlsafe(32))"`. |
 | `OPENPAGES_AUTH_MODE` | `user` | `server` — MCP server uses its own OpenPages credentials for all tool calls (on-prem / local / dev). `user` — per-user auth framework enforced (multi-tenant SaaS). |
 
 ### Authentication Methods
@@ -815,7 +815,7 @@ Add to Bob's MCP settings (`.bob/mcp.json`). The `MCP_API_TOKEN` env var must be
     "openpages-mcp": {
       "url": "http://localhost:8000/mcp",
       "headers": {
-        "Authorization": "Bearer ${env:MCP_API_TOKEN}"
+        "Authorization": "Basic ${env:MCP_API_TOKEN}"
       },
       "disabled": false
     }

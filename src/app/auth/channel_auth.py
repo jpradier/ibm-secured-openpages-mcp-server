@@ -5,9 +5,9 @@ A lightweight gate on every HTTP request to the MCP endpoint (including
 ``initialize``/``tools/list``/``ping``) so no fully-anonymous caller can establish
 a session. The rule is deliberately simple:
 
-  * **MCP_API_TOKEN set** — static bearer token gate applies to ALL requests
+  * **MCP_API_TOKEN set** — static Basic auth gate applies to ALL requests
     regardless of auth mode. The ``Authorization`` header must be
-    ``Bearer <MCP_API_TOKEN>``. This is checked first, before any other gate.
+    ``Basic <MCP_API_TOKEN>``. This is checked first, before any other gate.
   * **Server-credential deployments** (dev / local stdio / on-prem — see
     ``settings.uses_server_credentials()``) run entirely on the server's own
     credentials, so the per-user gate is **skipped** — no header is required
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 def _check_static_token(request: Request) -> bool:
-    """Validate the static MCP_API_TOKEN bearer if one is configured.
+    """Validate the static MCP_API_TOKEN Basic credential if one is configured.
 
     Returns True if the token matches, False if the header is absent or wrong.
     Uses a constant-time comparison to prevent timing attacks.
@@ -47,10 +47,10 @@ def _check_static_token(request: Request) -> bool:
         return True  # No static token configured — gate not active.
 
     auth_header = request.headers.get("Authorization", "")
-    if not auth_header.lower().startswith("bearer "):
+    if not auth_header.lower().startswith("basic "):
         return False
 
-    provided = auth_header[len("bearer "):].strip()
+    provided = auth_header[len("basic "):].strip()
     return secrets.compare_digest(provided, expected)
 
 
@@ -80,7 +80,7 @@ async def require_channel_auth(request: Request) -> None:
             raise HTTPException(
                 status_code=401,
                 detail="Authentication required",
-                headers={"WWW-Authenticate": "Bearer"},
+                headers={"WWW-Authenticate": "Basic"},
             )
         # Token matched — skip the per-user header gate entirely.
         return
