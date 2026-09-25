@@ -266,26 +266,20 @@ curl http://localhost:8000/health
 # Expected: {"status":"healthy",...}
 ```
 
-**2. List available tools:**
+**2. List available tools** (replace `<token>` with your `MCP_API_TOKEN`):
 ```bash
 curl -X POST http://localhost:8000/mcp \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":"1"}'
 # Expected: JSON response with list of available tools
 ```
 
-**3. Test listing resources:**
+**3. Test a query (replace with your object type):**
 ```bash
 curl -X POST http://localhost:8000/mcp \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"list_resources","arguments":{}},"id":"1"}'
-# Expected: JSON response with available ontology resources
-```
-
-**4. Test a query (replace with your object type):**
-```bash
-curl -X POST http://localhost:8000/mcp \
-  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
   -d '{
     "jsonrpc":"2.0",
     "method":"tools/call",
@@ -343,9 +337,11 @@ OPENPAGES_PASSWORD=your_password
 OPENPAGES_APIKEY=your_api_key
 OPENPAGES_AUTHENTICATION_URL=https://iam.cloud.ibm.com/identity/token
 
-# Request-time Authentication
-OPENPAGES_AUTH_MODE=user            # 'user' (enforce per-user auth) or 'server' (use server creds)
-SUPPORTED_APIKEY_AUTH_HEADER_NAMES=X-Api-Key   # Header(s) carrying the connection API key (comma-separated)
+# MCP Server Authentication (required when MCP_API_TOKEN is set)
+MCP_API_TOKEN=your_mcp_token   # Bearer token protecting the /mcp endpoint
+
+# Auth posture
+OPENPAGES_AUTH_MODE=server     # 'server' (use server creds) or 'user' (per-user auth, multi-tenant SaaS)
 
 # Server Settings
 SERVER_MODE=remote  # or local
@@ -359,19 +355,19 @@ LOG_LEVEL=INFO
 LOG_FORMAT=json
 
 # Observability (optional)
-OBSERVABILITY_ENABLED=True
-METRICS_ENABLED=True
-TRACING_ENABLED=False
+OBSERVABILITY_ENABLED=false
+METRICS_ENABLED=false
+TRACING_ENABLED=false
 ```
 
 See [`.env.example`](.env.example) for all available configuration options.
 
-**Request-time authentication variables**:
+**Key authentication variables**:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OPENPAGES_AUTH_MODE` | `user` | `user` enforces the per-user auth framework (multi-tenant SaaS) — tool calls never fall back to server credentials. `server` runs the MCP server on its own credentials (on-prem / Cloud Pak / local / dev). |
-| `SUPPORTED_APIKEY_AUTH_HEADER_NAMES` | `X-Api-Key` | Comma-separated list of header names that may carry the connection API key; the first present header wins. |
+| `MCP_API_TOKEN` | _(empty)_ | Static bearer token protecting the `/mcp` endpoint. When set, all requests must include `Authorization: Bearer <token>`. Generate with `python -c "import secrets; print(secrets.token_urlsafe(32))"`. |
+| `OPENPAGES_AUTH_MODE` | `user` | `server` — MCP server uses its own OpenPages credentials for all tool calls (on-prem / local / dev). `user` — per-user auth framework enforced (multi-tenant SaaS). |
 
 ### Authentication Methods
 
@@ -811,26 +807,26 @@ The server implements the MCP protocol version `2025-03-26` and supports the fol
 
 ### Bob
 
-Add to Bob's MCP settings:
+Add to Bob's MCP settings (`.bob/mcp.json`). The `MCP_API_TOKEN` env var must be set in the shell where Bob is launched:
+
 ```json
 {
-  "mcpServers":
-    {
-      "openpages-mcp-server":
-        {
-          "url": "http://localhost:8000/mcp",
-          "type": "streamable-http",
-          "headers": {},
-          "alwaysAllow":
-            [
-            ],
-          "disabled": false,
-          "disabledTools":
-            [
-            ]
-        }
+  "mcpServers": {
+    "openpages-mcp": {
+      "url": "http://localhost:8000/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:MCP_API_TOKEN}"
+      },
+      "disabled": false
     }
+  }
 }
+```
+
+Set the token in your shell before launching Bob:
+```bash
+export MCP_API_TOKEN=your_token_here
+# Add to ~/.zshrc or ~/.bashrc to make it permanent
 ```
 
 ### MCP Inspector

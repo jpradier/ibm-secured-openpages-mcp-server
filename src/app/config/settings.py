@@ -218,6 +218,12 @@ class Settings(BaseSettings):
     ENABLE_MINIMAL_SCHEMA_MODE: bool = True  # Enable minimal schema mode by default
     CACHE_QUERY_EXAMPLES: bool = True  # Cache query examples by default
 
+    # Static bearer token for protecting the MCP server endpoint.
+    # When set, ALL incoming requests (including server-credential deployments) must
+    # present "Authorization: Bearer <token>" — independently of OpenPages auth.
+    # Leave empty to disable this gate (default: no token required).
+    MCP_API_TOKEN: str = ""
+
     # MCP session enforcement (Streamable HTTP transport, spec 2025-03-26)
     # Default to False to allow clients that do not support session headers
     MCP_SESSION_ENFORCEMENT: bool = False
