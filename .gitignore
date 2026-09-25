@@ -46,3 +46,5 @@ venv/
 .bob/mcp.json
 rapport-fde-atos-laposte.html
 AGENTS.md
+
+workspace/
