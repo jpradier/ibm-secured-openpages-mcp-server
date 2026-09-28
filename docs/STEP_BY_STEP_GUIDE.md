@@ -57,7 +57,7 @@ In this step, you will deploy this MCP server on IBM Cloud Code Engine directly 
 
 > ⚠️ **Important**: Do not click **Create** just yet! Make sure you configure the environment variables in section 1.2 first before submitting the creation form.
 
-![Configure and Create MCP Server Application on Code Engine](assets/codeengine-mcpserver-creation1-configure.gif)
+![Configure and Create MCP Server Application on Code Engine](../assets/codeengine-mcpserver-creation1-configure.gif)
 
 ### 1.2 Configure Environment Variables
 
@@ -83,7 +83,7 @@ If the application fails to deploy or the container crashes on startup:
 2. Correct configuration errors (such as incorrect environment variable names, missing credentials, or incorrect base URL formatting) by **creating a new revision** or editing the application configuration.
 3. Once a new revision is healthy and running, you can safely delete older, failed revisions to keep your environment clean.
 
-![Debug Application and Update Revision](assets/codeengine-mcpserver-creation2-debug.gif)
+![Debug Application and Update Revision](../assets/codeengine-mcpserver-creation2-debug.gif)
 
 ### 1.4 Verify and Test the MCP Server
 
@@ -94,7 +94,7 @@ Once the Code Engine application status is **Ready**:
 3. Authenticate using your configured credentials / `MCP_API_TOKEN` when prompted.
 4. Verify that the MCP server responds correctly and the endpoint is accessible.
 
-![Verify and Test MCP Server](assets/codeengine-mcpserver-creation3-verify.gif)
+![Verify and Test MCP Server](../assets/codeengine-mcpserver-creation3-verify.gif)
 
 This completes the deployment of your secured OpenPages MCP server on IBM Cloud Code Engine.
 

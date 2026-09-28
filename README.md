@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server that enables AI agents to interact with IB
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![MCP](https://img.shields.io/badge/MCP-1.9.4+-green.svg)](https://modelcontextprotocol.io/)
 
-> **Note**: For the end-to-end guide on setting up the OpenPages AI Chat integration with watsonx Orchestrate and Code Engine, see the [Step-by-Step Guide](STEP_BY_STEP_GUIDE.md).
+> **Note**: For the end-to-end guide on setting up the OpenPages AI Chat integration with watsonx Orchestrate and Code Engine, see the [Step-by-Step Guide](docs/STEP_BY_STEP_GUIDE.md).
 
 ---
 
