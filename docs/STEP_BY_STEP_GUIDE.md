@@ -35,6 +35,12 @@ flowchart LR
    - [1.3 Debugging and Modifying Configuration](#13-debugging-and-modifying-configuration)
    - [1.4 Verify and Test the MCP Server](#14-verify-and-test-the-mcp-server)
 2. [Step 2: Configure a GRC Agent on IBM watsonx Orchestrate](#step-2-configure-a-grc-agent-on-ibm-watsonx-orchestrate)
+   - [2.1 Register the MCP Server in Orchestrate](#21-register-the-mcp-server-in-orchestrate)
+   - [2.2 Create the GRC Agent with Bob](#22-create-the-grc-agent-with-bob)
+   - [2.3 Refine the Agent with Bob and Starter Prompts](#23-refine-the-agent-with-bob-and-starter-prompts)
+   - [2.4 Alternative: Create or Edit the Agent Directly in Orchestrate](#24-alternative-create-or-edit-the-agent-directly-in-orchestrate)
+   - [2.5 Deploy the Agent to Production](#25-deploy-the-agent-to-production)
+   - [2.6 Verify the Live Agent](#26-verify-the-live-agent)
 3. [Step 3: Configure AI Chat within OpenPages](#step-3-configure-ai-chat-within-openpages)
 
 ---
@@ -102,7 +108,74 @@ This completes the deployment of your secured OpenPages MCP server on IBM Cloud 
 
 ## Step 2: Configure a GRC Agent on IBM watsonx Orchestrate
 
-> ⏳ *Coming soon* — This section will guide you through connecting watsonx Orchestrate to the Code Engine MCP server endpoint, registering the OpenPages tools, and setting up the agent system prompt.
+Now that your secured MCP server is running on Code Engine, you need to create a **GRC Agent** in IBM watsonx Orchestrate. This agent will leverage the OpenPages tools exposed by the MCP server to answer your GRC users' requests — searching for risks, controls, issues, and other governance objects — all through natural language.
+
+### 2.1 Register the MCP Server in Orchestrate
+
+To connect securely to the MCP server running on Code Engine, you first need to register it as a **remote MCP Server** in Orchestrate. This is a two-step process inside Orchestrate:
+
+1. Navigate to **Tools & Integrations** in your Orchestrate instance.
+2. Create a new **Connection** pointing to your Code Engine application URL, and supply the username and password corresponding to the `MCP_API_TOKEN` (Base64-encoded) you configured in Step 1 as the authorization credential.
+3. Once the connection is saved, create a new **MCP Server** definition that references that connection and points to the `/mcp` endpoint of your Code Engine application.
+4. Orchestrate will discover and register all the OpenPages tools exposed by the MCP server automatically.
+
+![Register the MCP Server as a remote connection in Orchestrate](../assets/orchestrate-configuration1-mcp.gif)
+
+### 2.2 Create the GRC Agent with Bob
+
+The quickest way to create your GRC agent is to use **Bob** — the AI assistant built into Orchestrate — via the **Create with Bob** option. A ready-to-use sample agent definition is included in this repository under [`samples/`](../samples/):
+
+1. Open one of the sample YAML files (e.g., [`watsonx_orchastrate_sample_ontology_based_agent.yaml`](../samples/watsonx_orchastrate_sample_ontology_based_agent.yaml)) and copy its full content.
+2. In Orchestrate, start a new agent and choose **Create with Bob**.
+3. Paste the YAML into Bob's input. You can ask Bob to:
+   - Rename the agent to match your use case.
+   - Remove any tools that **modify** objects on your OpenPages instance (e.g., create, update, delete operations) to keep the agent read-only and safe for initial rollout.
+4. Once satisfied, click **Import** to create the agent.
+
+> 🔑 **API Key**: When prompted, paste the **API key of your Orchestrate instance** so that Bob can securely connect to it and apply your changes.
+
+![Create the GRC Agent using Bob in Orchestrate](../assets/orchestrate-configuration2-agentcreation.gif)
+
+### 2.3 Refine the Agent with Bob and Starter Prompts
+
+After the initial creation, you can continue to iterate on your agent using Bob — no need to edit YAML manually. If you followed the setup in this guide, the **Orchestrate skills** should already be installed in Bob, giving you full access to agent management operations.
+
+1. Ask Bob to add **starter prompts** to your agent — these are example questions displayed to end users that give them an idea of what they can ask the GRC agent (e.g., *"List the top 10 open risks in my portfolio"*, *"Show me all controls linked to SOX compliance"*).
+2. Review the suggested prompts with Bob and adjust them until they match your users' typical workflows.
+3. Once you are happy with the changes, ask Bob to **re-import** (or re-apply) the updated agent definition.
+4. Switch back to the Orchestrate UI and refresh the page — your changes will appear automatically.
+
+![Refine the agent and add starter prompts with Bob](../assets/orchestrate-configuration3-starterprompt-w-bob.gif)
+
+### 2.4 Alternative: Create or Edit the Agent Directly in Orchestrate
+
+If you prefer not to use Bob, you can create and configure the agent entirely through the **Orchestrate UI**. However, keep in mind that you will miss two key benefits that Bob provides:
+
+1. **Natural language configuration** — with Bob, you describe changes in plain English instead of editing YAML or navigating forms, which requires less product expertise.
+2. **Version control integration** — Bob can synchronize your agent definitions with a **GitHub or GitLab** repository, giving you proper versioning, pull request reviews, and change history for your agents.
+
+If those trade-offs are acceptable for your situation, the Orchestrate UI remains a fully capable fallback for all agent configuration tasks.
+
+![Create or modify the agent manually from the Orchestrate UI](../assets/orchestrate-configuration4-manual.gif)
+
+### 2.5 Deploy the Agent to Production
+
+Once you are happy with your agent, it is time to promote it to **Live** (production).
+
+1. In a realistic production scenario, you would first build an **evaluation set** to benchmark each release and manage the agent life cycle with confidence. Consider doing this before your first real release.
+2. For this guide, proceed directly to deployment: click **Deploy**, create the **first version** of your agent, and confirm the deployment — the process is straightforward and takes only a moment.
+
+![Deploy the GRC agent to production](../assets/orchestrate-configuration5-deploy.gif)
+
+### 2.6 Verify the Live Agent
+
+Before moving on, do a quick sanity check to confirm that your agent is live and responding correctly.
+
+1. Open the **Live** environment in Orchestrate and locate your newly deployed GRC agent.
+2. Send a sample GRC question (e.g., *"List the open risks assigned to me"*) and verify that the agent calls the correct OpenPages tools and returns a meaningful answer.
+3. Once confirmed, you are ready to move to **Step 3**, where you will surface this agent inside the OpenPages UI.
+
+![Verify the live GRC agent in Orchestrate](../assets/orchestrate-configuration6-verification.gif)
 
 ---
 
