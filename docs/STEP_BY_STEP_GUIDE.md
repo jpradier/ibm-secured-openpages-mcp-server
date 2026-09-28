@@ -42,6 +42,9 @@ flowchart LR
    - [2.5 Deploy the Agent to Production](#25-deploy-the-agent-to-production)
    - [2.6 Verify the Live Agent](#26-verify-the-live-agent)
 3. [Step 3: Configure AI Chat within OpenPages](#step-3-configure-ai-chat-within-openpages)
+   - [3.1 Copy Agent Information from Orchestrate](#31-copy-agent-information-from-orchestrate)
+   - [3.2 Configure AI Chat in OpenPages](#32-configure-ai-chat-in-openpages)
+   - [3.3 Verify and Test Your Agent](#33-verify-and-test-your-agent)
 
 ---
 
@@ -181,4 +184,37 @@ Before moving on, do a quick sanity check to confirm that your agent is live and
 
 ## Step 3: Configure AI Chat within OpenPages
 
-> ⏳ *Coming soon* — This section will cover embedding the Orchestrate GRC agent into the OpenPages AI Chat interface, configuring end-user security tickets, and validating user context.
+This step is all about **embedding your Orchestrate GRC Agent into the AI Chat interface within OpenPages**. The integration uses a public/private key pair to ensure that all communication between OpenPages and Orchestrate is safely encrypted end-to-end — no data travels in the clear between the two platforms.
+
+### 3.1 Copy Agent Information from Orchestrate
+
+Before configuring OpenPages, you need to generate an encryption key pair and copy the agent embed snippet from Orchestrate.
+
+1. **Generate a valid RSA private/public key pair** by following the official IBM documentation:
+   [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+
+2. **Register the public key in Orchestrate**: navigate to the **Embed Security** tab on the **Settings** page of your Orchestrate instance and paste the public key there.
+
+3. **Retrieve the embed snippet**: go back to your GRC agent, open the **Deploy** section, select the **Live** tab, and copy the **Embedded Agent snippet** to your clipboard — you will need it in the next subsection.
+
+![Copy agent information and public key from Orchestrate](../assets/openpages-setup1-copy-info-from-orchestrate.gif)
+
+### 3.2 Configure AI Chat in OpenPages
+
+1. Log in to your **OpenPages** instance as an administrator.
+2. Navigate to **Settings** > **Integration** > **AI Chat**.
+3. **Paste the Embedded Agent snippet** copied from Orchestrate into the configuration field.
+4. **Select the user profile(s)** that should have access to the AI Chat — select your own profile at minimum, and add any other profiles you want to grant access to.
+5. **Paste the private key** (the counterpart of the public key you registered in Orchestrate) into the private key field to complete the secure channel setup.
+
+![Configure AI Chat in OpenPages with the Orchestrate embed snippet](../assets/openpages-setup2-configure-aichat.gif)
+
+### 3.3 Verify and Test Your Agent
+
+1. Allow a **couple of minutes** for Orchestrate to be ready to accept new encrypted requests after the key pair has been registered.
+2. **Refresh your OpenPages instance** and open the **AI Chat** panel.
+3. Your GRC Agent should now be live and ready to answer questions directly inside OpenPages!
+
+![Verify the agent is working inside OpenPages AI Chat](../assets/openpages-setup3-verify.gif)
+
+You are now ready to build on this foundation — iterate on your agent's instructions, refine its tools, and add starter prompts to continuously improve the experience for your GRC users.
