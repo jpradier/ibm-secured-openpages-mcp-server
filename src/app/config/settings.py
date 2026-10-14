@@ -92,7 +92,8 @@ class Settings(BaseSettings):
     # Standard OpenPages (SaaS/on-prem): "/opgrc"  → /opgrc/api/v2/...
     # Some on-prem instances (e.g. TechZone) expose /api/v2/ directly: set to ""
     # On Code Engine, use "none" or "off" to represent an empty root.
-    # Trailing slashes are stripped automatically (e.g. "/openpages/" → "/openpages").
+    # Trailing and leading slashes are normalised automatically
+    # (e.g. "opgrc/" → "/opgrc", "/openpages/" → "/openpages").
     OPENPAGES_API_ROOT: str = "/opgrc"
 
     @field_validator("OPENPAGES_API_ROOT", mode="before")
@@ -100,23 +101,35 @@ class Settings(BaseSettings):
     def _normalise_api_root(cls, v: str) -> str:
         if isinstance(v, str) and v.strip().lower() in ("none", "off", "empty"):
             return ""
-        return v.rstrip("/") if isinstance(v, str) else v
+        if isinstance(v, str):
+            v = v.strip().rstrip("/")
+            # Ensure a leading slash so the path joins correctly with base_url
+            if v and not v.startswith("/"):
+                v = "/" + v
+            return v
+        return v
 
     @model_validator(mode="after")
     def _deduplicate_api_root(self) -> "Settings":
         """
-        If OPENPAGES_BASE_URL already ends with the OPENPAGES_API_ROOT path segment,
-        clear OPENPAGES_API_ROOT to avoid double-prefixing (e.g. /openpages/openpages/...).
-        Example: base_url=".../openpages" + api_root="/openpages" → api_root=""
+        Guard against the legacy pattern where OPENPAGES_API_ROOT was mistakenly
+        included inside OPENPAGES_BASE_URL (e.g. base_url ending with "/opgrc").
+
+        API calls now always use the scheme+host portion of OPENPAGES_BASE_URL
+        (api_base_url) so the path component of the base URL no longer affects
+        API routing. This validator is kept purely for backward-compatibility
+        logging: if the base URL path already ends with the API root value we
+        log a warning so operators can clean up their configuration.
         """
         root = self.OPENPAGES_API_ROOT
         if root and self.OPENPAGES_BASE_URL.rstrip("/").endswith(root):
             logger.warning(
-                "OPENPAGES_API_ROOT '%s' is already the trailing path of "
-                "OPENPAGES_BASE_URL — clearing it to avoid double-prefix.",
+                "OPENPAGES_BASE_URL already contains OPENPAGES_API_ROOT ('%s') as its "
+                "trailing path segment. API calls now use the host origin only, so this "
+                "is harmless — but consider removing the duplicate path from "
+                "OPENPAGES_BASE_URL to avoid confusion.",
                 root,
             )
-            self.OPENPAGES_API_ROOT = ""
         return self
 
     # Cloud provider the server is provisioned on.

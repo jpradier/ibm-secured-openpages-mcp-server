@@ -9,6 +9,7 @@ import base64
 import gzip
 import time
 import json
+from urllib.parse import urlparse
 from typing import Any, Dict, List, Optional, Union
 import httpx  # type: ignore
 from src.app.config.settings import Settings, settings
@@ -134,7 +135,20 @@ class OpenPagesClient:
             logger.info(f"Added https:// protocol to base URL: {base_url}")
             
         self.base_url = base_url.rstrip('/')
-        logger.info(f"OpenPagesClient initialized with base URL: {self.base_url}")
+
+        # api_base_url is the scheme+host only (no path).
+        # API calls are always rooted at the origin so that OPENPAGES_API_ROOT
+        # (e.g. "/opgrc") hangs directly off the host, regardless of any context
+        # path that may appear in OPENPAGES_BASE_URL (e.g. "/openpages").
+        # Example:
+        #   OPENPAGES_BASE_URL = https://host.com/openpages/
+        #   OPENPAGES_API_ROOT = /opgrc
+        #   → api_base_url    = https://host.com
+        #   → API call URL    = https://host.com/opgrc/api/v2/...
+        parsed = urlparse(self.base_url)
+        self.api_base_url = f"{parsed.scheme}://{parsed.netloc}"
+
+        logger.info(f"OpenPagesClient initialized with base URL: {self.base_url}, api_base_url: {self.api_base_url}")
         
         # Store authentication parameters for later use
         self.auth_type = auth_type.lower()
@@ -221,7 +235,7 @@ class OpenPagesClient:
     
     def _get_api_path(self, endpoint: str) -> str:
         """
-        Get the correct API path based on deployment type (CP4D vs standard).
+        Return the path portion to append to api_base_url (scheme+host only).
 
         The root is controlled by OPENPAGES_API_ROOT (default "/opgrc"):
           - Standard SaaS/on-prem:  "/opgrc"    → /opgrc/api/v2/...
@@ -229,11 +243,14 @@ class OpenPagesClient:
           - TechZone / bare on-prem: ""          → /api/v2/...
           - CP4D: always appends "-opgrc" to the base URL path (unchanged).
 
+        The result is joined with self.api_base_url (never self.base_url) to form
+        the full request URL.
+
         Args:
             endpoint: The API endpoint (e.g., '/api/v2/query')
 
         Returns:
-            Full API path with correct prefix
+            Path with correct prefix, ready to append to api_base_url
         """
         if self.is_cp4d:
             # CP4D: append -opgrc suffix to base URL, then add the endpoint
@@ -693,9 +710,9 @@ class OpenPagesClient:
         logger.debug(f"Query statement: {statement[:100]}..." if len(statement) > 100 else f"Query statement: {statement}")
 
 
-        # Check if the base URL has a valid protocol
-        if not (self.base_url.startswith('http://') or self.base_url.startswith('https://')):
-            logger.error(f"Invalid base URL (missing protocol): {self.base_url}")
+        # Check if the api base URL has a valid protocol
+        if not (self.api_base_url.startswith('http://') or self.api_base_url.startswith('https://')):
+            logger.error(f"Invalid API base URL (missing protocol): {self.api_base_url}")
             # Return a mock empty result instead of raising an error
             return {"rows": []}
 
@@ -709,7 +726,7 @@ class OpenPagesClient:
         }
 
         api_path = self._get_api_path("/api/v2/query")
-        full_url = f"{self.base_url}{api_path}"
+        full_url = f"{self.api_base_url}{api_path}"
         logger.info(f"OpenPages API Query Request: {full_url}")
         logger.info(f"Request Body: {request_body}")
 
@@ -779,7 +796,7 @@ class OpenPagesClient:
             RuntimeError: If the redeem call fails (expired/unknown ticket, network).
         """
         api_path = self._get_api_path("/api/v2/token/redeemTicket")
-        full_url = f"{self.base_url}{api_path}"
+        full_url = f"{self.api_base_url}{api_path}"
         # Never log the ticket value itself.
         # OTEL NOTE: This endpoint sends {"ticket": <value>} in the request body.
         # Do NOT enable request-body capture (e.g. opentelemetry-instrumentation-httpx
@@ -986,7 +1003,7 @@ class OpenPagesClient:
 
 
         api_path = self._get_api_path(f"/api/v2/contents/{resource_id}")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages API Get Content Request: {url}")
 
         try:
@@ -1029,7 +1046,7 @@ class OpenPagesClient:
         logger.info(f"Creating content of type: {content_data.get('type_definition_id', 'unknown')}")
 
         api_path = self._get_api_path("/api/v2/contents")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages API Create Content Request: {url}")
         logger.debug(f"Request Body: {content_data}")
         try:
@@ -1074,7 +1091,7 @@ class OpenPagesClient:
 
 
         api_path = self._get_api_path(f"/api/v2/contents/{resource_id}")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages API Update Content Request: {url}")
         logger.debug(f"Request Body: {content_data}")
 
@@ -1115,9 +1132,9 @@ class OpenPagesClient:
         """
         logger.info("Getting current user from OpenPages")
         try:
-            # Double-check that the base URL has the correct protocol
-            if not (self.base_url.startswith('http://') or self.base_url.startswith('https://')):
-                logger.error(f"Base URL missing protocol: {self.base_url}")
+            # Double-check that the API base URL has the correct protocol
+            if not (self.api_base_url.startswith('http://') or self.api_base_url.startswith('https://')):
+                logger.error(f"API base URL missing protocol: {self.api_base_url}")
                 return "admin"  # Return a default user if URL is invalid
 
             # Query for current user
@@ -1174,7 +1191,7 @@ class OpenPagesClient:
         """
         # Build the API path - no user parameter needed, uses authenticated user from token
         api_path = self._get_api_path(f"/api/v2/contents/{object_id}/permissions/effective")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         
         logger.info(f"Checking effective permissions for object {object_id} (using authenticated user from bearer token)")
         logger.debug(f"OpenPages API Check Permissions Request: {url}")
@@ -1215,7 +1232,7 @@ class OpenPagesClient:
         """
         
         api_path = self._get_api_path(f"/api/v2/types/{type_name}")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.info(f"OpenPages API Get Type Definition Request: {url}")
 
         try:
@@ -1264,7 +1281,7 @@ class OpenPagesClient:
         api_path = self._get_api_path(
             "/api/v2/types?include_field_definitions=false&include_localized_labels=false"
         )
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         # Log URL/status only — never the token, headers, or response body.
         logger.info(f"Connect-time access verification: GET {url}")
         try:
@@ -1308,7 +1325,7 @@ class OpenPagesClient:
                 params += "&include_association=true"
             
             api_path = self._get_api_path(f"/api/v2/types?{params}")
-            url = f"{self.base_url}{api_path}"
+            url = f"{self.api_base_url}{api_path}"
             logger.info(f"OpenPages API Get All Types Request: {url}")
             
             response = await self._request_with_auth_retry(
@@ -1378,7 +1395,7 @@ class OpenPagesClient:
         """
         
         api_path = self._get_api_path(f"/api/v2/types/{type_name}/associations?includeLocalizedLabels=false")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"Fetching type associations from: {url}")
 
         try:
@@ -1462,7 +1479,7 @@ class OpenPagesClient:
         encoded_filter = urllib.parse.quote(filter_param)
 
         api_path = self._get_api_path(f"/api/v2/scim/Users?filter={encoded_filter}")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages SCIM Users API Request: {url}")
 
         try:
@@ -1514,7 +1531,7 @@ class OpenPagesClient:
         logger.info(f"Deleting content: {resource_id}")
         
         api_path = self._get_api_path(f"/api/v2/contents/{resource_id}")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages API Delete Content Request: {url}")
 
         try:
@@ -1589,7 +1606,7 @@ class OpenPagesClient:
         logger.info(f"Copying {len(object_ids_to_copy)} object(s) to parent: {parent_id}")
         
         api_path = self._get_api_path(f"/api/v2/contents/{parent_id}/action/copy")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages API Copy Content Request: {url}")
         
         # Prepare the request payload
@@ -1671,7 +1688,7 @@ class OpenPagesClient:
         
         
         api_path = self._get_api_path(f"/api/v2/contents/{resource_id}/associations")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages API Add Associations Request: {url}")
         
         # Validate associations
@@ -1834,7 +1851,7 @@ class OpenPagesClient:
             logger.debug(f"Removing {len(ids)} {rel_type} association(s): {ids}")
         
         api_path = self._get_api_path(f"/api/v2/contents/{resource_id}/associations")
-        url = f"{self.base_url}{api_path}"
+        url = f"{self.api_base_url}{api_path}"
         logger.debug(f"OpenPages API Remove Associations Request: {url}")
         if self.settings.DEBUG:
             logger.debug(f"Query parameters: {query_params}")
