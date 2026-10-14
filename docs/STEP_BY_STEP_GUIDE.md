@@ -72,10 +72,19 @@ In this step, you will deploy this MCP server on IBM Cloud Code Engine directly 
 
 Under the **Environment variables** section of the Code Engine application configuration, define the required variables based on your `.env` configuration:
 
-- **`OPENPAGES_BASE_URL`**: The base URL of your target OpenPages instance (e.g., `https://<instance-domain>`).
+> ℹ️ **Auth mode**: This configuration uses **`OPENPAGES_AUTH_MODE=server`**, meaning the MCP server authenticates to OpenPages with its own fixed credentials (username/password) for every request. This is the recommended mode for on-premises deployments and Cloud Pak for Data agent deployments where user-level delegation is not required.
+
+- **`OPENPAGES_AUTH_MODE`**: Controls how the MCP server authenticates to OpenPages. Set to `server` so the server uses its own fixed credentials (`OPENPAGES_USERNAME` / `OPENPAGES_PASSWORD`) for all requests, bypassing per-user token delegation. The alternative value `user` (the default) requires each incoming request to carry a user-scoped token and is used for SaaS / Cloud Pak ticket-based deployments.
+- **`OPENPAGES_BASE_URL`**: The base URL of your target OpenPages instance (e.g., `https://<your-instance>.op.ibmcloud.com/openpages`).
 - **`OPENPAGES_API_ROOT`**: The REST API root path prepended to all `/api/v2/...` calls. Common values: `/opgrc` (standard SaaS/on-prem, the default) or `/openpages/`. Trailing slashes are stripped automatically. Use `none` or `off` if your instance serves the API directly at `/api/v2/...` (Code Engine cannot store empty strings).
+  > 💡 **Tip — find the right value for your instance**: Open a browser and try accessing your OpenPages REST API directly. For example, if your instance is hosted at `https://<your-instance>.op.ibmcloud.com`, test the following URL while logged in:
+  > ```
+  > https://<your-instance>.op.ibmcloud.com/opgrc/api/v2/types/SOXRisk
+  > ```
+  > If the browser returns a JSON response, set `OPENPAGES_API_ROOT=/opgrc`. If that path returns a 404, try replacing `/opgrc` with `/openpages` or leave the field empty (using `none`). The correct prefix is whichever segment appears between your hostname and `/api/v2/` in a working URL.
 - **`OPENPAGES_AUTHENTICATION_TYPE`**: Authentication scheme used to connect to OpenPages (`basic`, `bearer`, `ibm_cloud`, `mcsp`, or `cp4d`).
 - **`OPENPAGES_USERNAME` / `OPENPAGES_PASSWORD`**: Default instance credentials when using `basic` authentication.
+- **`SSL_VERIFY`**: Controls whether the server verifies the TLS certificate of your OpenPages instance. Set to `false` when your OpenPages instance uses a **self-signed certificate** or an internal CA that is not trusted by the container's default certificate store — common in on-premises and Cloud Pak for Data deployments. Leave this as `true` (the default) in production environments with a publicly trusted certificate, as disabling verification exposes the connection to man-in-the-middle attacks.
 - **`MCP_API_TOKEN`**: **(Critical Security Setting)** The token required to authenticate incoming requests to this MCP server.
   > 🔒 **Focus on `MCP_API_TOKEN`**: When using basic authorization against the MCP server, this variable must contain the **Base64-encoded** string of `username:password` (for example, base64 of `admin:secretpassphrase`). Any client connecting to the MCP endpoints must provide this token (e.g., in the `Authorization: Bearer <MCP_API_TOKEN>` header or `Authorization: Basic <base64>` header) to gain access.
   >
